@@ -15,7 +15,7 @@ Hello from block: 1, thread: 1
 
 (the ordering of the above lines may vary; ordering differences do not indicate an incorrect result)
 
-Note the use of `cudaDeviceSynchronize()` after the kernel launch. In CUDA, kernel launches are *asynchronous* to the host thread. The host thread will launch a kernel but not wait for it to finish, before proceeding with the next line of host code. Therefore, to prevent application termination before the kernel gets to print out its message, we must use this synchronization function.
+Note the use of `cudaDeviceSynchronize()` after the kernel launch. In CUDA, kernel launches are _asynchronous_ to the host thread. The host thread will launch a kernel but not wait for it to finish, before proceeding with the next line of host code. Therefore, to prevent application termination before the kernel gets to print out its message, we must use this synchronization function.
 
 After editing the code, compile it using the following:
 
@@ -66,6 +66,7 @@ If you're up for a challenge, see if you can write a complete vector add program
 Note that this skeleton code includes something we didn't cover in lesson 1: CUDA error checking. Every CUDA runtime API call returns an error code. It's good practice (especially if you're having trouble) to rigorously check these error codes. A macro is given that will make this job easier. Note the special error checking method after a kernel call.
 
 Typical output when complete would look like this:
+
 ```
 A[0] = 0.840188
 B[0] = 0.394383

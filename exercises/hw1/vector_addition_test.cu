@@ -38,6 +38,9 @@ int main(void)
     int *a, *b, *c;       // host copies of a b c
     int *d_a, *d_b, *d_c; // device copies of a b c
     int size = N * sizeof(int);
+    clock_t t0, t1, t2, t3, t4; // for timing
+
+    t0 = clock();
 
     // device memory allocation
     cudaMalloc((void **)&d_a, size);
@@ -60,29 +63,43 @@ int main(void)
     random_ints(a, N);
     random_ints(b, N);
 
+    t1 = clock();
+    printf("Init took %f seconds.\n", ((double)(t1 - t0)) / CLOCKS_PER_SEC);
+
     // data transfer from host to device
     cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
     cudaCheckError();
     cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
     cudaCheckError();
 
+    t2 = clock();
+
     // perform addition at device
-    int threadsPerBlock = 128;
+    int threadsPerBlock = 128; // max is 1024
     int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
     add<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, N);
     cudaCheckError();
+    t3 = clock();
 
     // transfer result to host
     cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
     cudaCheckError();
 
+    t4 = clock();
+    printf("Data transfer took %f seconds.\n", ((double)(t2 - t1 + t4 - t3)) / CLOCKS_PER_SEC);
+    printf("Compute took %f seconds.\n", ((double)(t3 - t2)) / CLOCKS_PER_SEC);
+
     // print result
-    printf("result is\n");
-    for (int ii = 0; ii < N; ii++)
-    {
-        printf(" %d", c[ii]);
-    }
-    printf("\n");
+    // printf("result is\n");
+    // for (int ii = 0; ii < N; ii++)
+    // {
+    //     printf(" %d", c[ii]);
+    // }
+    // printf("\n");
+    printf("a[0] = %d", a[0]);
+    printf(" a[1] = %d\n", a[1]);
+    printf("b[0] = %d b[1] = %d\n", b[0], b[1]);
+    printf("c[0] = %d c[1] = %d\n", c[0], c[1]);
 
     free(a);
     free(b);
